@@ -7,15 +7,15 @@
 int main()
 {
     POINT p;
-    double positionLabelX[10];
-    double positionLabelY[10];
+    double positionLabelX[129];
+    double positionLabelY[129];
     /////////////////////////////////////////////// odczyt pozycji
 
     int x, y;
     std::cout<<"Poruszaj myszka"<<std::endl;
-    for(int i=0; i<10; i++)
+    for(int i=0; i<129; i++)
     {
-        Sleep(300);
+        Sleep(20);
         GetCursorPos(&p);
         if(x==p.x && y==p.y)
             i--;
@@ -29,9 +29,9 @@ int main()
     }
 
     /////////////////////////////////////////////// obliczenia
-    double k[10];
-    double r[10];
-    for(int i=0; i<9; i++)
+    double k[129];
+    double r[129];
+    for(int i=0; i<128; i++)
     {
         if(positionLabelX[i]==positionLabelX[i+1])
         {
@@ -48,7 +48,7 @@ int main()
     /////////////////////////////////////////////// zapis do pliku wyników
     std::ofstream myfile;
     myfile.open("position.txt");
-    for(int i=0; i<9; i++)
+    for(int i=0; i<128; i++)
     {
         myfile<<"x = "<<positionLabelX[i]<<"   y = "<<positionLabelY[i]<<"   kat = "<<k[i]<<"   r = "<<r[i]<<"\n";
     }
