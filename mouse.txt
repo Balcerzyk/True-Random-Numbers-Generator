@@ -4,6 +4,21 @@
 #include <fstream>
 #include <math.h>
 
+void print_bytes(const void *object, size_t size)
+{
+  // This is for C++; in C just drop the static_cast<>() and assign.
+  const unsigned char * const bytes = static_cast<const unsigned char *>(object);
+  size_t i;
+
+  printf("[ ");
+  for(i = 0; i < size; i++)
+  {
+    printf("%02x ", bytes[i]);
+  }
+  printf("]\n");
+}
+
+
 int main()
 {
     POINT p;
@@ -12,6 +27,8 @@ int main()
     int x, y;
     double k[129];
     double r[129];
+    int bits[129][52];
+    long long int result;
     std::ofstream myfile;
 
     /////////////////////////////////////////////// odczyt pozycji
@@ -40,7 +57,23 @@ int main()
 
         r[i]=(k[i]/1.57);
 
-        std::cout<<"x = "<<positionLabelX[i]<<"   y = "<<positionLabelY[i]<<"   kat = "<<k[i]<<"   r = "<<r[i]<<std::endl;
+        std::cout << r[i];
+        std::cout << std::endl;
+
+        memcpy(&result, &r[i], 8);
+        int64_t test = __builtin_bswap64 ((int64_t)result);
+        print_bytes(&test, sizeof test);
+
+
+        long long temp = test << 12;
+        for(int j=0; j<52; j++)
+        {
+            bits[i][j] = ( temp && (1 << j) ) >> j;
+            std::cout << bits[i][j];
+        }
+
+        std::cout << std::endl;
+        //std::cout<<"x = "<<positionLabelX[i]<<"   y = "<<positionLabelY[i]<<"   kat = "<<k[i]<<"   r = "<<r[i]<<std::endl;
     }
 
     /////////////////////////////////////////////// zapis do pliku wynikow
