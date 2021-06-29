@@ -1,0 +1,88 @@
+#include <iostream>
+#include <winuser.h>
+#include <windows.h>
+#include <fstream>
+#include <math.h>
+
+void print_bytes(const void *object, size_t size)
+{
+  // This is for C++; in C just drop the static_cast<>() and assign.
+  const unsigned char * const bytes = static_cast<const unsigned char *>(object);
+  size_t i;
+
+  printf("[ ");
+  for(i = 0; i < size; i++)
+  {
+    printf("%02x ", bytes[i]);
+  }
+  printf("]\n");
+}
+
+
+int main()
+{
+    POINT p;
+    double positionLabelX[129];
+    double positionLabelY[129];
+    int x, y;
+    double k[129];
+    double r[129];
+    int bits[129][52];
+    long long int result;
+    std::ofstream myfile;
+
+    /////////////////////////////////////////////// odczyt pozycji
+    std::cout<<"Poruszaj myszka"<<std::endl;
+    for(int i=0; i<129;)
+    {
+        Sleep(20);
+        GetCursorPos(&p);
+        if(x==p.x && y==p.y)
+            continue;
+        else
+        {
+            positionLabelX[i] = x = p.x;
+            positionLabelY[i] = y = p.y;
+        }
+        i++;
+    }
+
+    /////////////////////////////////////////////// obliczenia
+    for(int i=0; i<128; i++)
+    {
+        if(positionLabelX[i]==positionLabelX[i+1])
+            k[i]=1.57;
+        else
+            k[i]=atan((abs(positionLabelY[i+1]-positionLabelY[i])/abs(positionLabelX[i+1]-positionLabelX[i])));
+
+        r[i]=(k[i]/1.57);
+
+        std::cout << r[i];
+        std::cout << std::endl;
+
+        memcpy(&result, &r[i], 8);
+        int64_t test = __builtin_bswap64 ((int64_t)result);
+        print_bytes(&test, sizeof test);
+
+
+        long long temp = test << 12;
+        for(int j=0; j<52; j++)
+        {
+            bits[i][j] = ( temp && (1 << j) ) >> j;
+            std::cout << bits[i][j];
+        }
+
+        std::cout << std::endl;
+        //std::cout<<"x = "<<positionLabelX[i]<<"   y = "<<positionLabelY[i]<<"   kat = "<<k[i]<<"   r = "<<r[i]<<std::endl;
+    }
+
+    /////////////////////////////////////////////// zapis do pliku wynikow
+    myfile.open("position.txt");
+    for(int i=0; i<128; i++)
+    {
+        myfile<<"x = "<<positionLabelX[i]<<"   y = "<<positionLabelY[i]<<"   kat = "<<k[i]<<"   r = "<<r[i]<<"\n";
+    }
+    myfile.close();
+    std::cout<<std::endl<<"Wyniki zapisane w position.txt"<<std::endl;
+    return 0;
+}
